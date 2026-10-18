@@ -1,28 +1,40 @@
 name: TCC - Testes Web
-run-name: Testes Web - ${{ github.event_name }}
+
+run-name: "Testes Web #${{ github.run_number }} | ${{ github.event_name }} | ${{ github.ref_name }}"
+
 on:
   push:
   pull_request:
   workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
   e2e:
+    name: Cypress — 10 casos de teste
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+
     steps:
-      - name: Checkout
+      - name: 1. Obter o projeto
         uses: actions/checkout@v7
-      - name: Node.js
+
+      - name: 2. Configurar Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
-      - name: Instalar dependências
+
+      - name: 3. Instalar dependências
         run: npm ci
-      - name: Executar os dez casos em Chrome
+
+      - name: 4. Executar testes no Chrome
+        id: testes
         run: npm run test:css
-      - name: Publicar relatório HTML
+
+      - name: 5. Salvar relatório HTML
+        id: relatorio
         if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -30,7 +42,8 @@ jobs:
           path: reports/
           if-no-files-found: error
           retention-days: 14
-      - name: Publicar screenshots de falhas
+
+      - name: 6. Salvar screenshots de falhas
         if: failure()
         uses: actions/upload-artifact@v7
         with:
@@ -38,3 +51,92 @@ jobs:
           path: cypress/screenshots/
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: 7. Mostrar resumo dos testes
+        if: always()
+        env:
+          RESULTADO_TESTES: ${{ steps.testes.outcome }}
+          URL_RELATORIO: ${{ steps.relatorio.outputs.artifact-url }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          const eventos = {
+            push: 'Push',
+            pull_request: 'Pull request',
+            workflow_dispatch: 'Execução manual'
+          };
+
+          const texto = (valor) => String(valor ?? '')
+            .replace(/\|/g, '\\|')
+            .replace(/[\r\n]+/g, ' ');
+
+          const linhas = [
+            '# Resultado dos testes — Automation Exercise',
+            '',
+            `**Execução:** #${process.env.GITHUB_RUN_NUMBER}`,
+            `**Gatilho:** ${eventos[process.env.GITHUB_EVENT_NAME] || process.env.GITHUB_EVENT_NAME}`,
+            `**Branch/ref:** ${texto(process.env.GITHUB_REF_NAME)}`,
+            `**Etapa de testes:** ${process.env.RESULTADO_TESTES}`,
+            ''
+          ];
+
+          const arquivo = 'reports/html/index.json';
+
+          if (fs.existsSync(arquivo)) {
+            const relatorio = JSON.parse(fs.readFileSync(arquivo, 'utf8'));
+            const s = relatorio.stats;
+
+            linhas.push(
+              '## Totais',
+              '',
+              '| Testes | Aprovados | Falhas | Pendentes | Ignorados |',
+              '|---:|---:|---:|---:|---:|',
+              `| ${s.tests} | ${s.passes} | ${s.failures} | ${s.pending} | ${s.skipped || 0} |`,
+              '',
+              `**Duração registrada pelo relatório:** ${(s.duration / 1000).toFixed(1)} segundos`,
+              '',
+              '## Resultado por caso',
+              '',
+              '| Teste | Resultado | Duração |',
+              '|---|---|---:|'
+            );
+
+            const testes = [];
+            function coletar(suite) {
+              testes.push(...(suite.tests || []));
+              for (const filha of suite.suites || []) coletar(filha);
+            }
+
+            for (const suite of relatorio.results || []) coletar(suite);
+            testes.sort((a, b) => a.title.localeCompare(b.title, 'pt-BR', { numeric: true }));
+
+            for (const teste of testes) {
+              const status = teste.pass ? '✅ Aprovado'
+                : teste.fail ? '❌ Falhou'
+                : teste.skipped ? '⏭️ Ignorado'
+                : '⏸️ Pendente';
+
+              linhas.push(
+                `| ${texto(teste.title)} | ${status} | ${(Number(teste.duration || 0) / 1000).toFixed(1)} s |`
+              );
+            }
+          } else {
+            linhas.push(
+              '**Relatório indisponível.** Confira os passos de instalação e execução nos logs.'
+            );
+          }
+
+          if (process.env.URL_RELATORIO) {
+            linhas.push(
+              '',
+              '## Relatório completo',
+              '',
+              `[Baixar relatório HTML](${process.env.URL_RELATORIO})`,
+              '',
+              'Extraia o ZIP e abra html/index.html. Artefato disponível por 14 dias.'
+            );
+          }
+
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, linhas.join('\n') + '\n');
+          NODE
