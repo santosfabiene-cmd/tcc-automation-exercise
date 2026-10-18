@@ -1,0 +1,17 @@
+{
+  "name": "tcc-automation-exercise",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "open": "cypress open",
+    "test": "cypress run --browser chrome",
+    "test:headed": "cypress run --browser chrome --headed",
+    "test:css": "cypress run --browser chrome --env seletores=css",
+    "test:xpath": "cypress run --browser chrome --env seletores=xpath"
+  },
+  "devDependencies": {
+    "cypress": "13.7.3",
+    "cypress-xpath": "2.0.1",
+    "cypress-mochawesome-reporter": "3.8.2"
+  }
+}
