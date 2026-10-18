@@ -68,17 +68,25 @@ A pipeline executa em push, pull_request e manualmente (workflow_dispatch). Usa 
 
 Para executar manualmente, o arquivo deve estar na branch padrão: abra **Actions → TCC - Testes Web → Run workflow**. Para validar a entrega, confirme 10 testes aprovados e faça download do relatório. Ter o YAML no repositório não equivale a uma execução comprovada.
 
-## Publicação e entrega
-1. Crie um repositório para este trabalho e copie sua URL real.
-2. Coloque o conteúdo desta pasta na raiz do repositório, incluindo `.github`, package.json e package-lock.json.
-3. Faça push e acompanhe Actions. Se usar Git local, não versione node_modules nem reports (já estão no .gitignore).
-4. Corrija qualquer falha e guarde o link da execução aprovada e o relatório.
-5. Envie o ZIP do projeto **sem node_modules**, juntamente com a URL real do repositório, conforme a plataforma pedir.
+## Repositório e entrega
 
-A publicação será realizada pela autora. Após criar o repositório, inclua a URL real na entrega. Este pacote não foi publicado no GitHub.
+https://github.com/santosfabiene-cmd/tcc-automation-exercise
+
+Entregável: ZIP do projeto sem node_modules e URL do repositório.
+As dependências são instaladas com npm ci.
 
 ## Estado da validação
-Consulte VALIDACAO.md. As execuções anteriores enviadas pela autora comprovam os casos 1 a 5 no projeto anterior (CSS e XPath). Elas não comprovam automaticamente a suíte nova de dez casos, a refatoração, o reporter ou a CI. A entrega final exige executar esta versão e verificar a pipeline.
+
+Validação realizada em 18/10/2026:
+
+- Execução local: 10 testes aprovados, sem falhas, em 2 minutos e 8 segundos.
+- GitHub Actions: 10 testes aprovados, sem falhas, em 1 minuto e 17 segundos.
+- Relatório HTML gerado e salvo no artefato relatorio-testes-1.
+
+Evidência:
+https://github.com/santosfabiene-cmd/tcc-automation-exercise/actions/runs/39164926177
+
+Mais detalhes em [VALIDACAO.md](VALIDACAO.md).
 
 ## Versões
 Cypress 13.7.3 foi mantido para preservar a base que funcionou no computador da autora. cypress-xpath 2.0.1 é antigo e descontinuado, mantido como opção para o exercício de XPath; a pipeline usa CSS por padrão. Reporter: cypress-mochawesome-reporter 3.8.2. Dependências transitivas estão fixadas no lockfile.
