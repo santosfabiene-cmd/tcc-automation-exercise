@@ -28,4 +28,13 @@ A primeira tentativa com Chrome visível foi interrompida por perda
 de conexão com o Chrome DevTools. A execução completa em modo
 headless terminou com sucesso.
 
-A execução desta versão refatorada no GitHub Actions está pendente.
+## GitHub Actions — versão refatorada
+
+- Execução concluída em 19/10/2026, no horário de Brasília.
+- Resultado: 10 testes aprovados, sem falhas.
+- Duração dos testes: 58 segundos.
+- Relatório: relatorio-testes-4.
+- Resumo por teste gerado com sucesso.
+
+Evidência:
+https://github.com/santosfabiene-cmd/tcc-automation-exercise/actions/runs/39351145556

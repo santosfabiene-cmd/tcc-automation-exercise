@@ -89,14 +89,19 @@ As dependências são instaladas com npm ci.
 
 ## Estado da validação
 
-A versão anterior teve dez testes aprovados localmente e no GitHub Actions em 18/10/2026.
-A execução com resumo por caso está em:
-https://github.com/santosfabiene-cmd/tcc-automation-exercise/actions/runs/39167256991
+A versão organizada em módulos, conforme o item 08 do guia,
+foi validada em 19/10/2026:
 
-Esta atualização adapta a organização ao item 08 do guia. Sintaxe, importações,
-exports e estrutura das specs foram conferidos. Os resultados anteriores são evidência
-da versão anterior, não uma execução desta refatoração. Execute `npm test` e confirme
-a nova execução no Actions antes de entregar. Consulte [VALIDACAO.md](VALIDACAO.md).
+- Execução local com npm test: 10 testes aprovados, sem falhas,
+  em 2 minutos e 52 segundos.
+- GitHub Actions: 10 testes aprovados, sem falhas, em 58 segundos.
+- Relatório HTML salvo no artefato relatorio-testes-4.
+- Resumo por teste gerado na página da execução.
+
+Evidência da pipeline:
+https://github.com/santosfabiene-cmd/tcc-automation-exercise/actions/runs/39351145556
+
+Mais detalhes em [VALIDACAO.md](VALIDACAO.md).
 
 ## Versões
 Cypress 13.7.3 foi mantido para preservar a base que funcionou no computador da autora. cypress-xpath 2.0.1 é antigo e descontinuado, mantido como opção para o exercício de XPath; a pipeline usa CSS por padrão. Reporter: cypress-mochawesome-reporter 3.8.2. Dependências transitivas estão fixadas no lockfile.
