@@ -1,34 +1,74 @@
-import { novaConta, criarConta, limparConta } from '../helpers/contas';
-import { abrirLogin, cadastrarPelaInterface, logar, verificarLogado, excluirPelaInterface, qa } from '../helpers/interface';
-import { adicionarProdutoAoCarrinho, conferirCheckout, concluirPedido } from '../helpers/checkout';
+const comum = require('../modules/comum');
+const contas = require('../modules/contas');
+const cadastro = require('../modules/cadastro');
+const login = require('../modules/login');
+const carrinho = require('../modules/carrinho');
+const checkout = require('../modules/checkout');
+
+const cartaoFicticio = {
+  nome: 'Fabiene Teste', numero: '4111111111111111', cvc: '123',
+  mes: '12', ano: String(new Date().getFullYear() + 2)
+};
 
 describe('Pedidos — casos 15 e 16', () => {
   let conta;
-  beforeEach(() => { conta = novaConta(); });
-  afterEach(() => { limparConta(conta); });
+  beforeEach(() => { conta = contas.novaConta(); });
+  afterEach(() => { contas.limparConta(conta); });
 
   it('15 — realizar pedido com cadastro antes do checkout', () => {
-    abrirLogin();
-    cadastrarPelaInterface(conta);
-    verificarLogado(conta);
-    adicionarProdutoAoCarrinho();
-    conferirCheckout(conta);
-    concluirPedido();
-    excluirPelaInterface();
-    qa('continue-button').click();
-    cy.location('pathname').should('eq', '/');
+    comum.abrirHome();
+    comum.validarHome();
+    login.abrir();
+    cadastro.validarFormularioInicial();
+    cadastro.iniciar(conta);
+    cadastro.validarInformacoes(conta);
+    cadastro.preencher(conta);
+    cadastro.validarOpcoesMarcadas();
+    cadastro.enviar();
+    cadastro.validarCriado();
+    comum.continuar();
+    login.validarLogado(conta);
+    carrinho.abrirProduto();
+    carrinho.validarProduto();
+    carrinho.adicionar();
+    carrinho.validarAdicionado();
+    carrinho.abrir();
+    carrinho.validarCarrinho();
+    checkout.abrir();
+    checkout.validarRevisao(conta);
+    checkout.abrirPagamento('Pedido fictício para atividade acadêmica de automação.');
+    checkout.validarPaginaPagamento();
+    checkout.pagar(cartaoFicticio);
+    checkout.validarPedido();
+    contas.excluir();
+    contas.validarExcluida();
+    comum.continuar();
+    comum.validarHome();
   });
 
   it('16 — realizar pedido com login antes do checkout', () => {
-    criarConta(conta); // Pré-condição isolada; login e compra são feitos pela UI.
-    abrirLogin();
-    logar(conta);
-    verificarLogado(conta);
-    adicionarProdutoAoCarrinho();
-    conferirCheckout(conta);
-    concluirPedido();
-    excluirPelaInterface();
-    qa('continue-button').click();
-    cy.location('pathname').should('eq', '/');
+    contas.criarConta(conta);
+    comum.abrirHome();
+    comum.validarHome();
+    login.abrir();
+    login.validarFormulario();
+    login.entrar(conta);
+    login.validarLogado(conta);
+    carrinho.abrirProduto();
+    carrinho.validarProduto();
+    carrinho.adicionar();
+    carrinho.validarAdicionado();
+    carrinho.abrir();
+    carrinho.validarCarrinho();
+    checkout.abrir();
+    checkout.validarRevisao(conta);
+    checkout.abrirPagamento('Pedido fictício para atividade acadêmica de automação.');
+    checkout.validarPaginaPagamento();
+    checkout.pagar(cartaoFicticio);
+    checkout.validarPedido();
+    contas.excluir();
+    contas.validarExcluida();
+    comum.continuar();
+    comum.validarHome();
   });
 });

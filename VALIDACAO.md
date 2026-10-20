@@ -1,22 +1,31 @@
-# Validação do projeto
+# Validação da atualização por módulos
 
-Validação realizada em 18/10/2026.
+## Evidência anterior
+Em 18/10/2026, os dez testes da versão anterior passaram localmente e na pipeline.
+A execução com o resumo por teste foi aprovada em:
+https://github.com/santosfabiene-cmd/tcc-automation-exercise/actions/runs/39167256991
 
-## Execução local
-- Windows, Chrome 155 e Cypress 13.7.3.
-- Comando: npm run test:headed
-- Resultado: 10 testes aprovados, sem falhas.
-- Tempo dos testes: 2 minutos e 8 segundos.
-- Relatório HTML gerado com sucesso.
+## Atualização do item 08
+- Pastas por contexto em cypress/modules.
+- Objetos const seletores em todos os módulos.
+- Exportações com module.exports e importações com require.
+- Asserções em funções de validação.
+- Specs com chamadas de ações e validações, sem seletores ou should/expect.
+- Dez it explícitos: 1, 2, 3, 4, 5, 8, 9, 10, 15 e 16.
+- Mantidos os seletores CSS/XPath, dados fictícios, isolamento e limpeza por API.
+- Mantidos o relatório Mochawesome e a pipeline com resumo por caso.
 
-## GitHub Actions
-- Execução automática acionada por push na branch main.
-- Resultado: 10 testes aprovados, sem falhas.
-- Tempo dos testes: 1 minuto e 17 segundos.
-- Relatório armazenado no artefato relatorio-testes-1.
+## Verificação desta versão
+Validação local realizada em 19/10/2026:
 
-Evidência:
-https://github.com/santosfabiene-cmd/tcc-automation-exercise/actions/runs/39164926177
+- Comando: npm test.
+- Ambiente: Windows, Chrome 155 headless e Cypress 13.7.3.
+- Resultado: 10 testes aprovados, sem falhas ou testes ignorados.
+- Duração: 2 minutos e 52 segundos.
+- Relatório HTML gerado em reports/html/index.html.
 
-## Casos implementados
-1, 2, 3, 4, 5, 8, 9, 10, 15 e 16.
+A primeira tentativa com Chrome visível foi interrompida por perda
+de conexão com o Chrome DevTools. A execução completa em modo
+headless terminou com sucesso.
+
+A execução desta versão refatorada no GitHub Actions está pendente.

@@ -44,19 +44,31 @@ Se a janela inicial do Cypress ficar branca, use `npm run test:headed`, como na 
 Cada `it()` é um caso. São 10 testes em 3 specs, sem dependência da ordem. Nos pedidos, a confirmação persistente é `Order Placed!` e `Congratulations! Your order has been confirmed!`, após o redirecionamento para payment_done. Ela substitui a tentativa de capturar a mensagem transitória mencionada na descrição do site.
 
 ## Estrutura e boas práticas
-- `cypress/e2e`: cenários e asserções de negócio.
-- `cypress/helpers/interface.js`: seletores e ações reutilizáveis de cadastro/login.
-- `cypress/helpers/checkout.js`: carrinho, revisão e pagamento fictício.
-- `cypress/helpers/contas.js`: dados únicos, criação de pré-condições e limpeza.
-- `cypress/support/e2e.js`: registro de XPath e do reporter.
-- `cypress.config.js`: ambiente, isolamento, relatórios e captura de falhas.
-- `.github/workflows/e2e.yml`: pipeline.
 
-Preferimos data-qa e IDs; links são limitados ao cabeçalho. A escolha CSS/XPath usa as mesmas ações e verificações. Utilizamos as esperas automáticas das asserções, sem pausas fixas, force:true, testes ignorados ou supressão global de erros. Retentativas estão desativadas para que uma falha não fique escondida.
+- `cypress/e2e`: dez casos; cada `it` chama ações e validações dos módulos.
+- `cypress/modules/comum`: navegação e localização CSS/XPath.
+- `cypress/modules/cadastro`: formulário e validações de cadastro.
+- `cypress/modules/login`: autenticação, erros e logout.
+- `cypress/modules/contas`: dados fictícios únicos, API de pré-condição e limpeza.
+- `cypress/modules/catalogo`: lista, detalhes e busca.
+- `cypress/modules/inscricao`: inscrição no rodapé.
+- `cypress/modules/carrinho`: inclusão e validação de uma unidade.
+- `cypress/modules/checkout`: endereços, total e pagamento fictício.
+- `.github/workflows/e2e.yml`: execução, artifacts e resumo por teste.
 
-Os casos 2, 4, 5 e 16 criam contas pela API como **pré-condição**; o comportamento testado é executado na interface. Os casos 1 e 15 fazem o cadastro completo na interface. Cada teste usa e-mail exclusivo. O afterEach tenta excluir somente sua conta fictícia; resposta 404 é aceita quando ela já foi removida ou nunca foi criada. Uma interrupção abrupta pode impedir a limpeza. A inscrição do caso 10 usa e-mail fictício e não possui endpoint público documentado de desfazer inscrição.
+Cada contexto declara `const seletores = {}` e exporta funções com `module.exports`.
+Os módulos usam `require`. As specs não contêm seletores ou asserções diretas.
+Os `should` e `expect` ficam nas funções de validação. Seletores data-qa e IDs
+são priorizados; os mesmos fluxos podem usar CSS ou XPath.
 
-Os dados de endereço e cartão são fictícios. Não usar contas, senhas ou dados financeiros reais.
+Os casos 2, 4, 5 e 16 criam uma conta pela API como pré-condição e testam o comportamento
+pela interface. Os casos 1 e 15 cadastram pela interface. Cada teste gera seu próprio e-mail.
+O `afterEach` limpa somente a conta fictícia daquele teste e aceita 404 para uma conta
+já removida ou não criada. Não há dependência da ordem, pausas fixas, testes ignorados,
+cliques forçados ou supressão global de erros. Uma interrupção abrupta pode impedir a limpeza.
+
+Endereços e cartões são fictícios. Não usar dados reais. A inscrição no rodapé utiliza
+um e-mail fictício; não há limpeza dessa inscrição implementada.
 
 ## Relatórios
 Após uma execução com `cypress run`, abra **reports/html/index.html** no navegador. Ele consolida as 3 specs, resultados, tempos e screenshots de falhas. O JSON consolidado também é preservado para inspeção. O relatório não é produzido pelo modo interativo `cypress open` da mesma forma; use `npm test` ou `npm run test:headed` para gerar a evidência final.
@@ -77,16 +89,14 @@ As dependências são instaladas com npm ci.
 
 ## Estado da validação
 
-Validação realizada em 18/10/2026:
+A versão anterior teve dez testes aprovados localmente e no GitHub Actions em 18/10/2026.
+A execução com resumo por caso está em:
+https://github.com/santosfabiene-cmd/tcc-automation-exercise/actions/runs/39167256991
 
-- Execução local: 10 testes aprovados, sem falhas, em 2 minutos e 8 segundos.
-- GitHub Actions: 10 testes aprovados, sem falhas, em 1 minuto e 17 segundos.
-- Relatório HTML gerado e salvo no artefato relatorio-testes-1.
-
-Evidência:
-https://github.com/santosfabiene-cmd/tcc-automation-exercise/actions/runs/39164926177
-
-Mais detalhes em [VALIDACAO.md](VALIDACAO.md).
+Esta atualização adapta a organização ao item 08 do guia. Sintaxe, importações,
+exports e estrutura das specs foram conferidos. Os resultados anteriores são evidência
+da versão anterior, não uma execução desta refatoração. Execute `npm test` e confirme
+a nova execução no Actions antes de entregar. Consulte [VALIDACAO.md](VALIDACAO.md).
 
 ## Versões
 Cypress 13.7.3 foi mantido para preservar a base que funcionou no computador da autora. cypress-xpath 2.0.1 é antigo e descontinuado, mantido como opção para o exercício de XPath; a pipeline usa CSS por padrão. Reporter: cypress-mochawesome-reporter 3.8.2. Dependências transitivas estão fixadas no lockfile.
@@ -96,3 +106,4 @@ Cypress 13.7.3 foi mantido para preservar a base que funcionou no computador da 
 - API de pré-condições: https://automationexercise.com/api_list
 - Reporter: https://github.com/LironEr/cypress-mochawesome-reporter
 - Cypress: https://docs.cypress.io/app/references/command-line
+

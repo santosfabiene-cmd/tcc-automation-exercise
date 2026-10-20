@@ -1,56 +1,74 @@
-import { novaConta, criarConta, limparConta } from '../helpers/contas';
+const comum = require('../modules/comum');
+const contas = require('../modules/contas');
+const login = require('../modules/login');
+const cadastro = require('../modules/cadastro');
 
-import { xpath, el, qa, id, nav, tituloLogin, tituloSignup, abrirLogin, logar, verificarLogado, excluirPelaInterface, cadastrarPelaInterface } from '../helpers/interface';
-
-describe(`Automation Exercise — cenários 1 a 5 (${xpath ? 'XPath' : 'CSS'})`, () => {
+describe('Contas — casos 1 a 5', () => {
   let conta;
-  beforeEach(() => { conta = novaConta(); });
-  afterEach(() => { limparConta(conta); });
+  beforeEach(() => {
+    conta = contas.novaConta();
+  });
+  afterEach(() => { contas.limparConta(conta); });
 
   it('01 — cadastrar usuário e excluir a conta', () => {
-    abrirLogin();
-    cadastrarPelaInterface(conta);
-    verificarLogado(conta);
-    excluirPelaInterface();
-    qa('continue-button').click();
-    cy.location('pathname').should('eq', '/');
+    comum.abrirHome();
+    comum.validarHome();
+    login.abrir();
+    cadastro.validarFormularioInicial();
+    cadastro.iniciar(conta);
+    cadastro.validarInformacoes(conta);
+    cadastro.preencher(conta);
+    cadastro.validarOpcoesMarcadas();
+    cadastro.enviar();
+    cadastro.validarCriado();
+    comum.continuar();
+    login.validarLogado(conta);
+    contas.excluir();
+    contas.validarExcluida();
+    comum.continuar();
+    comum.validarHome();
   });
 
   it('02 — login com e-mail e senha corretos', () => {
-    criarConta(conta); // Pré-condição; a verificação de login é pela interface.
-    abrirLogin();
-    logar(conta);
-    verificarLogado(conta);
-    excluirPelaInterface();
+    contas.criarConta(conta);
+    comum.abrirHome();
+    comum.validarHome();
+    login.abrir();
+    login.validarFormulario();
+    login.entrar(conta);
+    login.validarLogado(conta);
+    contas.excluir();
+    contas.validarExcluida();
   });
 
   it('03 — login com e-mail e senha incorretos', () => {
-    abrirLogin();
-    logar(conta); // Esta conta não foi criada.
-    el('.login-form form p', '//div[@class="login-form"]//form/p')
-      .should('be.visible').and('have.text', 'Your email or password is incorrect!');
+    comum.abrirHome();
+    comum.validarHome();
+    login.abrir();
+    login.validarFormulario();
+    login.entrar(conta);
+    login.validarCredenciaisInvalidas();
   });
 
   it('04 — logout do usuário', () => {
-    criarConta(conta);
-    abrirLogin();
-    logar(conta);
-    verificarLogado(conta);
-    nav('/logout').click();
-    cy.location('pathname').should('eq', '/login');
-    tituloLogin().should('be.visible');
-    nav('/login').should('be.visible');
-    nav('/logout').should('not.exist');
+    contas.criarConta(conta);
+    comum.abrirHome();
+    comum.validarHome();
+    login.abrir();
+    login.validarFormulario();
+    login.entrar(conta);
+    login.validarLogado(conta);
+    login.sair();
+    login.validarLogout();
   });
 
   it('05 — cadastro com e-mail já existente', () => {
-    criarConta(conta);
-    abrirLogin();
-    tituloSignup().should('be.visible').and('have.text', 'New User Signup!');
-    qa('signup-name').type(conta.name);
-    qa('signup-email').type(conta.email);
-    qa('signup-button').click();
-    el('.signup-form form p', '//div[@class="signup-form"]//form/p')
-      .should('be.visible').and('have.text', 'Email Address already exist!');
+    contas.criarConta(conta);
+    comum.abrirHome();
+    comum.validarHome();
+    login.abrir();
+    cadastro.validarFormularioInicial();
+    cadastro.iniciar(conta);
+    cadastro.validarEmailExistente();
   });
 });
